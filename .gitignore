@@ -1,0 +1,72 @@
+# =========================
+# Veri Setleri (Datasets)
+# =========================
+data/
+*.csv
+*.tsv
+*.dat
+*.json
+*.xml
+*.parquet
+
+# Image/Audio/Video data (if it's a dataset)
+*.jpg
+*.jpeg
+*.png
+*.mp4
+*.wav
+
+# =========================
+# Logs and Output Files
+# =========================
+logs/
+*.log
+*.out
+
+# =========================
+# Trained Models and Weights
+# =========================
+models/
+*.h5
+*.hdf5
+*.keras
+*.pt
+*.pth
+*.pkl
+*.pickle
+*.ckpt
+*.pb
+*.onnx
+
+# =========================
+# Python and Environment Files
+# =========================
+# Byte-compiled / optimize / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
+venv/
+env/
+.env
+.venv/
+conda-env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# =========================
+# Jupyter Notebook 
+# =========================
+.ipynb_checkpoints/
+profile_default/
+ipython_config.py
+
+# =========================
+# IDE and Operating System Files
+# =========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
