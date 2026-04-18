@@ -1,0 +1,4 @@
+data:
+  raw_path: "data/raw/dataset.csv"
+  processed_path: "data/processed/processed_data.csv"
+  
