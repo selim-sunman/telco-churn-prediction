@@ -14,5 +14,5 @@ dependencies:
   - ipykernel
   - pip
   - pip:
-    - logger
+    - loguru
     - pathlib

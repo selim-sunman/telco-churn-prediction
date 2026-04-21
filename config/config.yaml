@@ -1,4 +1,5 @@
 data:
   raw_path: "data/raw/dataset.csv"
+  interim_path: "data/interim/interim_data.csv"
   processed_path: "data/processed/processed_data.csv"
   
