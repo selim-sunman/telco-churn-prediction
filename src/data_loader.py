@@ -1,11 +1,12 @@
 import pandas as pd
 from pathlib import Path
-from loguru import logger
+
 
 
 class DataLoad:
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, logger):
         self.config = config
+        self.logger = logger
 
 
     def load_csv(self) -> pd.DataFrame:
@@ -15,20 +16,20 @@ class DataLoad:
             interim_path = self.config["data"]["interim_path"]
             
         except KeyError as e:
-            logger.error(f"Configuration key missing: {e}")
+            self.logger.error(f"Configuration key missing: {e}")
             raise
 
         
-        logger.info(f"Loading raw data from: {raw_path}")
+        self.logger.info(f"Loading raw data from: {raw_path}")
 
 
         try:
             df = pd.read_csv(raw_path)
         except FileNotFoundError as e:
-            logger.error(f"Raw data file not found at: {e}")
+            self.logger.error(f"Raw data file not found at: {e}")
             raise
         except Exception as e:
-            logger.error(f"Failed to read data from {raw_path}: {e}")
+            self.logger.error(f"Failed to read data from {raw_path}: {e}")
             raise
 
         
@@ -36,7 +37,7 @@ class DataLoad:
         
         obj_cols = df.select_dtypes(include="object").columns
         df[obj_cols] = df[obj_cols].apply(lambda x: x.str.strip())
-        logger.info("Whitespace cleaned")
+        self.logger.info("Whitespace cleaned")
 
 
         
@@ -48,13 +49,13 @@ class DataLoad:
         missing_cols = missing_value[missing_value > 0]
 
         if not missing_cols.empty: 
-            logger.warning(
+            self.logger.warning(
                 f"Missing values detected: {missing_cols.to_dict()}"
                 )
             df = df.dropna(subset=["TotalCharges"])
-            logger.info(f"Dropped rows with missing values: {len(missing_cols)} columns affected")
+            self.logger.info(f"Dropped rows with missing values: {len(missing_cols)} columns affected")
         else:
-            logger.info("No missing values found. Dataset is clean")
+            self.logger.info("No missing values found. Dataset is clean")
 
 
         df = df.drop("customerID", axis=1, errors="ignore")
@@ -64,9 +65,9 @@ class DataLoad:
             output_path = Path(interim_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             df.to_csv(output_path, index=False)
-            logger.info(f"Cleaned data saved to {interim_path}")
+            self.logger.info(f"Cleaned data saved to {interim_path}")
         except OSError as e:
-            logger.error(f"Failed to save cleaned data to {interim_path}. Check disk space or permissions: {e}")
+            self.logger.error(f"Failed to save cleaned data to {interim_path}. Check disk space or permissions: {e}")
             raise
 
 
