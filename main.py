@@ -15,8 +15,7 @@ def load_config(config_path: str):
 
 def main():
     
-    base_path = Path(__file__).parent
-    config_path = base_path / "config" / "config.yaml"
+    config_path = Path("config/config.yaml")
 
     logger = setup_logger()
 

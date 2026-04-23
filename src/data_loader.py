@@ -32,6 +32,9 @@ class DataLoad:
             self.logger.error(f"Failed to read data from {raw_path}: {e}")
             raise
 
+
+        df = df.drop("customerID", axis=1, errors="ignore")
+
         
         df.columns = df.columns.str.strip()
         
@@ -58,14 +61,16 @@ class DataLoad:
             self.logger.info("No missing values found. Dataset is clean")
 
 
-        df = df.drop("customerID", axis=1, errors="ignore")
+        df = df.drop_duplicates()
+        self.logger.warning("Duplicate lines have been removed.")
+
 
 
         try:
             output_path = Path(interim_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             df.to_csv(output_path, index=False)
-            self.logger.info(f"Cleaned data saved to {interim_path}")
+            self.logger.info(f"Cleaned data saved to {interim_path} : {df.duplicated().sum()}")
         except OSError as e:
             self.logger.error(f"Failed to save cleaned data to {interim_path}. Check disk space or permissions: {e}")
             raise
