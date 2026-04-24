@@ -2,4 +2,36 @@ data:
   raw_path: "data/raw/dataset.csv"
   interim_path: "data/interim/interim_data.csv"
   processed_path: "data/processed/processed_data.csv"
-  
+
+preprocessing:
+  service_cols:
+    - "PhoneService"
+    - "MultipleLines"
+    - "OnlineSecurity"
+    - "OnlineBackup"
+    - "DeviceProtection"
+    - "TechSupport"
+    - "StreamingTV"
+    - "StreamingMovies"
+  numerical_cols:
+    - "SeniorCitizen"
+    - "MonthlyCharges"
+    - "TotalCharges"
+    - "HasFamily"
+    - "TotalService"
+    - "TotalCharges_log"
+  categorical_cols:
+    - "gender"
+    - "Partner"
+    - "Dependents"
+    - "PhoneService"
+    - "MultipleLines"
+    - "InternetService"
+    - "OnlineSecurity "
+    - "OnlineBackup"
+    - "DeviceProtection"
+    - "TechSupport"
+    - "StreamingTV"
+    - "StreamingMovies"
+    - "Contract"
+    - "PaperlessBilling"
