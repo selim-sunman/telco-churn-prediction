@@ -66,7 +66,7 @@ class Feature_Engineering(BaseEstimator, TransformerMixin):
 
 
 
-class PreprocessingPipeline:
+class Preprocessing_Pipeline:
     def __init__(self, logger):
         self.logger = logger
 

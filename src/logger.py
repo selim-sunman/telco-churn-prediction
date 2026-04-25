@@ -38,15 +38,9 @@ def setup_logger():
 log = setup_logger()
 
 if __name__ == "__main__":
-    log.info("Uygulama başlatıldı.")
-    log.debug("Bu bir debug mesajıdır (Sadece dosyada görünür).")
-    log.warning("Dikkat! Bir uyarı oluştu.")
-    log.error("Hata: Veritabanı bağlantısı başarısız.")
-
-
-    try:
-        1 / 0
-    except ZeroDivisionError:
-        log.exception("Matematiksel bir hata yakalandı!")
+    log.info("The application has been launched.")
+    log.debug("This is a debug message (it only appears in the file).")
+    log.warning("Attention! An alert has been generated.")
+    log.error("Error: Database connection failed.")
 
 

@@ -12,8 +12,8 @@ class DataLoad:
     def load_csv(self) -> pd.DataFrame:
 
         try:
-            raw_path = self.config["data"]["raw_path"]
-            interim_path = self.config["data"]["interim_path"]
+            raw_path = self.config["paths"]["raw_path"]
+            interim_path = self.config["paths"]["interim_path"]
             
         except KeyError as e:
             self.logger.error(f"Configuration key missing: {e}")
