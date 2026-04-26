@@ -16,3 +16,4 @@ dependencies:
   - pip:
     - loguru
     - pathlib
+    - pydantic

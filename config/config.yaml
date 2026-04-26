@@ -27,7 +27,7 @@ preprocessing:
     - "PhoneService"
     - "MultipleLines"
     - "InternetService"
-    - "OnlineSecurity "
+    - "OnlineSecurity"
     - "OnlineBackup"
     - "DeviceProtection"
     - "TechSupport"
@@ -41,3 +41,28 @@ train_settings:
   test_size: 0.2
   random_state: 42
   target_col: "Churn"
+
+
+model:
+  module: "sklearn.linear_model"
+  model_name: "LogisticRegression"
+  params:
+    C: 0.1
+    penalty: "l2"
+    class_weight: "balanced"
+    solver: "lbfgs"
+    max_iter: 1000
+    random_state: 42
+
+
+
+metrics:
+  - module: "sklearn.metrics"
+    name: "classification_report"
+
+  - module: "sklearn.metrics"
+    name: "confusion_matrix"
+
+
+  - module: "sklearn.metrics"
+    name: "roc_curve"
