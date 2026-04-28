@@ -3,8 +3,9 @@ import importlib
 from preprocess import Preprocessing_Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
+from evaluation import ModelEvaluation
 from pydantic import BaseModel
-from typing import Any
+from typing import Any, List, Dict
 
 
 
@@ -19,15 +20,21 @@ class TrainSettings(BaseModel):
     random_state: int
 
 class PreprocessingConfig(BaseModel):
-    numerical_cols: list[str]
-    categorical_cols: list[str]
-    service_cols: list[str]
+    numerical_cols: List[str]
+    categorical_cols: List[str]
+    service_cols: List[str]
 
 
 class ModelConfig(BaseModel):
     module: str
     model_name: str
-    params: dict[str, Any]
+    params: Dict[str, Any]
+
+
+
+class MetricConfig(BaseModel):
+    module: str
+    name: str
 
 
 class AppConfig(BaseModel):
@@ -35,13 +42,12 @@ class AppConfig(BaseModel):
     train_settings: TrainSettings
     preprocessing: PreprocessingConfig
     model: ModelConfig
+    metrics: List[MetricConfig]
 
 
 
 
-
-
-class model_train:
+class ModelTrain:
     def __init__(self, config: dict, logger):
         self.logger = logger
 
@@ -109,7 +115,26 @@ class model_train:
 
         y_pred = full_model_pipeline.predict(X_test)
 
+        if hasattr(full_model_pipeline, "predict_proba"):
+            y_prob = full_model_pipeline.predict_proba(X_test)[:, 1] 
+        else:
+            y_prob = None
 
+
+        self.logger.info("The Evaluation module is being called for model evaluation...")
+
+
+        evaluator = ModelEvaluation(metrics_config=self.config.metrics, logger=self.logger)
+
+        metrics_results = evaluator.evaluate_model(y_test=y_test, y_pred=y_pred, y_prob=y_prob)
+
+        return full_model_pipeline, metrics_results
+
+
+
+
+
+        
 
 
 

@@ -5,7 +5,6 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 
-
 class Feature_Engineering(BaseEstimator, TransformerMixin):
     def __init__(self, logger, service_cols):
         self.logger = logger

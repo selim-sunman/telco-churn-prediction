@@ -63,6 +63,8 @@ metrics:
   - module: "sklearn.metrics"
     name: "confusion_matrix"
 
+  - module: "sklearn.metrics"
+    name: "f1_score"
 
   - module: "sklearn.metrics"
-    name: "roc_curve"
+    name: "average_precision_score"

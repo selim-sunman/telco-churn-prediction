@@ -1,35 +1,42 @@
 import pandas as pd
 from pathlib import Path
+from pydantic import BaseModel
+from typing import Dict
+
+
+class DataConfig(BaseModel):
+    raw_path: str
+    interim_path: str
+
+class AppConfig(BaseModel):
+    paths : DataConfig
 
 
 
 class DataLoad:
-    def __init__(self, config: dict, logger):
-        self.config = config
+    def __init__(self, config: Dict, logger):
         self.logger = logger
+
+        try:
+            self.config = AppConfig(**config)
+        except Exception as e:
+            self.logger.error(f"Configuration validation error: {e}")
 
 
     def load_csv(self) -> pd.DataFrame:
 
-        try:
-            raw_path = self.config["paths"]["raw_path"]
-            interim_path = self.config["paths"]["interim_path"]
-            
-        except KeyError as e:
-            self.logger.error(f"Configuration key missing: {e}")
-            raise
 
         
-        self.logger.info(f"Loading raw data from: {raw_path}")
+        self.logger.info(f"Loading raw data from: {self.config.paths.raw_path}")
 
 
         try:
-            df = pd.read_csv(raw_path)
+            df = pd.read_csv(self.config.paths.raw_path)
         except FileNotFoundError as e:
             self.logger.error(f"Raw data file not found at: {e}")
             raise
         except Exception as e:
-            self.logger.error(f"Failed to read data from {raw_path}: {e}")
+            self.logger.error(f"Failed to read data from {self.config.paths.raw_path}: {e}")
             raise
 
 
@@ -67,12 +74,12 @@ class DataLoad:
 
 
         try:
-            output_path = Path(interim_path)
+            output_path = Path(self.config.paths.interim_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             df.to_csv(output_path, index=False)
-            self.logger.info(f"Cleaned data saved to {interim_path} : {df.duplicated().sum()}")
+            self.logger.info(f"Cleaned data saved to {self.config.paths.interim_path} : {df.duplicated().sum()}")
         except OSError as e:
-            self.logger.error(f"Failed to save cleaned data to {interim_path}. Check disk space or permissions: {e}")
+            self.logger.error(f"Failed to save cleaned data to {self.config.paths.interim_path}. Check disk space or permissions: {e}")
             raise
 
 
