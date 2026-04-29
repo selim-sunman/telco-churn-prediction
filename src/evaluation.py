@@ -68,6 +68,9 @@ class ModelEvaluation:
         for metric_name, value in metrics.items():
             if value is not None:
                 formatted_name = metric_name.replace('_', ' ').title()
-                self.logger.info(f"{formatted_name}: {value:.4f}")
+                if isinstance(value, (int, float)):
+                    self.logger.info(f"{formatted_name}: {value:.4f}")
+                else:
+                    self.logger.info(f"{formatted_name}: {value}")
 
         self.logger.info("-------------------------------------------")

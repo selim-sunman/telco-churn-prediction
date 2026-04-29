@@ -21,7 +21,7 @@ class Feature_Engineering(BaseEstimator, TransformerMixin):
         X_copy = X.copy()
         self.logger.info(f"Data size before processing:{X_copy.shape}")
 
-
+        
         try:
             if "Partner" in X_copy.columns and "Dependents" in X_copy.columns:
                 X_copy["HasFamily"] = ((X_copy["Partner"] == "Yes") | (X_copy["Dependents"] == "Yes")).astype(int)
@@ -29,10 +29,10 @@ class Feature_Engineering(BaseEstimator, TransformerMixin):
             else:
                 self.logger.warning("Attention: The 'Partner' or 'Dependents' columns are missing! 'HasFamily' could not be created.")
 
+
+
             available_cols = [col for col in self.service_cols if col in X_copy.columns]
             
-
-
             if available_cols:
                 X_copy[available_cols] = X_copy[available_cols].replace({
                     "No internet service" : "No",
@@ -60,6 +60,8 @@ class Feature_Engineering(BaseEstimator, TransformerMixin):
         except Exception as e:
             self.logger.error(f"A critical error during the feature engineering phase: {str(e)}")
             raise
+
+        
 
         return X_copy
 

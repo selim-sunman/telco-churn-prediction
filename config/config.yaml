@@ -1,7 +1,8 @@
 paths:
   raw_path: "data/raw/dataset.csv"
   interim_path: "data/interim/interim_data.csv"
-  processed_path: "data/processed/processed_data.csv"
+  train_path: "data/processed/train.csv"
+  test_path: "data/processed/test.csv"
 
 preprocessing:
   service_cols:

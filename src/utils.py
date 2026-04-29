@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 
-def load_config(self, config_path: str) -> Dict[str, Any]:
+def load_config(config_path: str) -> Dict[str, Any]:
     
     try:
         with open(config_path, "r", encoding="utf-8") as f:

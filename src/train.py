@@ -1,9 +1,9 @@
 import pandas as pd
 import importlib
-from preprocess import Preprocessing_Pipeline
+from src.preprocess import Preprocessing_Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from evaluation import ModelEvaluation
+from src.evaluation import ModelEvaluation
 from pydantic import BaseModel
 from typing import Any, List, Dict
 
@@ -12,7 +12,8 @@ from typing import Any, List, Dict
 
 class DataConfig(BaseModel):
     interim_path: str
-    processed_path: str
+    train_path: str
+    test_path: str
 
 class TrainSettings(BaseModel):
     target_col: str
@@ -65,10 +66,11 @@ class ModelTrain:
         self.logger.info("Data is being loaded and separated into Train/Test sections...")
         df = pd.read_csv(self.config.paths.interim_path)
 
-
         target = self.config.train_settings.target_col
         X = df.drop(columns=[target])
         y = df[target].map({"Yes": 1, "No": 0})
+
+
 
         X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                             test_size=self.config.train_settings.test_size,
@@ -127,6 +129,20 @@ class ModelTrain:
         evaluator = ModelEvaluation(metrics_config=self.config.metrics, logger=self.logger)
 
         metrics_results = evaluator.evaluate_model(y_test=y_test, y_pred=y_pred, y_prob=y_prob)
+
+
+        self.logger.info("Data is saved as train-test....")
+
+
+        train_file = self.config.paths.train_path
+        test_file = self.config.paths.test_path
+      
+        train_data = pd.concat([X_train, y_train], axis=1)
+        test_data = pd.concat([X_test, y_test], axis=1)
+
+        train_data.to_csv(train_file, index=False)
+        test_data.to_csv(test_file, index=False)
+
 
         return full_model_pipeline, metrics_results
 
