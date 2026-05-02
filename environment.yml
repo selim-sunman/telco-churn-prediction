@@ -12,8 +12,9 @@ dependencies:
   - seaborn
   - jupyterlab
   - ipykernel
+  - pathlib
+  - loguru
   - pip
   - pip:
-    - loguru
-    - pathlib
     - pydantic
+    - pytest
