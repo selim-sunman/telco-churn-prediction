@@ -38,7 +38,7 @@ def sample_raw_data():
         "StreamingMovies": ["No", "No", "No", "No", "No", "Yes", "No", "No", "Yes", "Yes"],
         "Contract": ["Month-to-month", "One year", "Month-to-month", "One year", "Month-to-month", "Month-to-month", "Two year", "Month-to-month", "One year", "Two year"],
         "PaperlessBilling": ["Yes", "No", "Yes", "No", "Yes", "Yes", "Yes", "No", "Yes", "No"],
-        "PaymentMethod": ["Electronic check", "Mailed check", "Mailed check", "Bank transfer (automatic)", "Electronic check", "Electronic check", "Credit card (automatic)", "Mailed check", "Electronic check", "Bank transfer (automatic)"],
+        "PaymentMethod": ["Electronic check", "Mailed check", "Mailed check", "Bank transfer (automatic)", "Electronic check", "Electronic check", "Electronic check", "Mailed check", "Electronic check", "Bank transfer (automatic)"],
         "MonthlyCharges": [29.85, 56.95, 53.85, 42.30, 70.70, 99.65, 89.10, 29.75, 104.80, 56.15],
         "TotalCharges": ["29.85", "1889.5", "108.15", "1840.75", "151.65", "820.5", "1949.4", "301.9", "3046.05", "3487.95"],
         "Churn": ["No", "No", "Yes", "No", "Yes", "Yes", "No", "No", "Yes", "No"]
