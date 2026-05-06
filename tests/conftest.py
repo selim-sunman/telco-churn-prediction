@@ -51,6 +51,8 @@ def dummy_config(tmp_path):
     interim_data_path = tmp_path / "interim_data.csv"
     train_path = tmp_path / "train.csv"
     test_path = tmp_path / "test.csv"
+    model_path = tmp_path / "model.joblib"
+    metrics_path = tmp_path / "metrics.json"
 
 
 
@@ -59,7 +61,9 @@ def dummy_config(tmp_path):
             "raw_path": str(raw_data_path),
             "interim_path": str(interim_data_path),
             "train_path": str(train_path),
-            "test_path": str(test_path)
+            "test_path": str(test_path),
+            "model_path": str(model_path),
+            "metrics_path": str(metrics_path)
         },
         "train_settings": {
             "target_col": "Churn",
@@ -89,11 +93,11 @@ def dummy_config(tmp_path):
 
 
 @pytest.fixture
-def yaml_fie_path(tmp_path, config_path):
+def yaml_file_path(tmp_path, dummy_config):
 
     file_path = tmp_path / "config.yaml"
 
     with open(file_path, "w", encoding='utf-8') as f:
-        yaml.dump(config_path, f)
+        yaml.dump(dummy_config, f)
 
     return str(file_path)

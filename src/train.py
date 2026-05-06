@@ -1,12 +1,14 @@
 import pandas as pd
 import importlib
+import joblib
+import json
 from src.preprocess import Preprocessing_Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from src.evaluation import ModelEvaluation
 from pydantic import BaseModel
-from typing import Any, List, Dict
-
+from typing import Any
+from pathlib import Path
 
 
 
@@ -14,6 +16,8 @@ class DataConfig(BaseModel):
     interim_path: str
     train_path: str
     test_path: str
+    model_path: str
+    metrics_path: str
 
 class TrainSettings(BaseModel):
     target_col: str
@@ -21,15 +25,15 @@ class TrainSettings(BaseModel):
     random_state: int
 
 class PreprocessingConfig(BaseModel):
-    numerical_cols: List[str]
-    categorical_cols: List[str]
-    service_cols: List[str]
+    numerical_cols: list[str]
+    categorical_cols: list[str]
+    service_cols: list[str]
 
 
 class ModelConfig(BaseModel):
     module: str
     model_name: str
-    params: Dict[str, Any]
+    params: dict[str, Any]
 
 
 
@@ -43,7 +47,7 @@ class AppConfig(BaseModel):
     train_settings: TrainSettings
     preprocessing: PreprocessingConfig
     model: ModelConfig
-    metrics: List[MetricConfig]
+    metrics: list[MetricConfig]
 
 
 
@@ -60,11 +64,40 @@ class ModelTrain:
             raise
 
 
+    def setup_output_dirs(self):
+         output_paths = [
+             self.config.paths.train_path,
+             self.config.paths.test_path,
+             self.config.paths.model_path,
+             self.config.paths.metrics_path            
+         ]
+
+         for path_str in output_paths:
+             path = Path(path_str)
+
+             path.parent.mkdir(parents=True, exist_ok=True)
+             self.logger.info(f"Directory ensured: {path.parent}")
+
+
+
     def run_training(self):
+
+        self.setup_output_dirs()
         
 
+        data_path = Path(self.config.paths.interim_path)
         self.logger.info("Data is being loaded and separated into Train/Test sections...")
-        df = pd.read_csv(self.config.paths.interim_path)
+
+        try:
+            df = pd.read_csv(data_path)
+            if df.empty:
+                raise ValueError(f"The dataset read is empty: {data_path}")
+        except FileNotFoundError:
+            self.logger.error(f"Data file not found: {data_path}")
+            raise
+        except Exception as e:
+            self.logger.error(f"Unexpected error while loading data: {e}")
+            raise
 
         target = self.config.train_settings.target_col
         X = df.drop(columns=[target])
@@ -109,9 +142,13 @@ class ModelTrain:
         ])
 
 
-
-        self.logger.info("Pipeline training (Fit process)...")
-        full_model_pipeline.fit(X_train, y_train)
+        try:
+            self.logger.info("Pipeline training (Fit process)...")
+            full_model_pipeline.fit(X_train, y_train)
+        except ValueError as e:
+            self.logger.error(f"Data error during model training (X or y may be mismatched): {e}")
+        except Exception as e:
+            self.logger.error(f"A technical problem occurred while training the model: {e}")
 
 
 
@@ -134,8 +171,8 @@ class ModelTrain:
         self.logger.info("Data is saved as train-test....")
 
 
-        train_file = self.config.paths.train_path
-        test_file = self.config.paths.test_path
+        train_file = Path(self.config.paths.train_path)
+        test_file = Path(self.config.paths.test_path)
       
         train_data = pd.concat([X_train, y_train], axis=1)
         test_data = pd.concat([X_test, y_test], axis=1)
@@ -144,10 +181,26 @@ class ModelTrain:
         test_data.to_csv(test_file, index=False)
 
 
+        model_save_path = Path(self.config.paths.model_path)
+
+        try:
+            self.logger.info(f"Saving the model: {model_save_path}")
+            joblib.dump(full_model_pipeline, model_save_path, compress=3)
+        except OSError as e:
+            self.logger.error(f"Disk error! Model could not be saved: {e}")
+            raise
+
+
+        metrics_save_path = Path(self.config.paths.metrics_path)
+        self.logger.info(f"Metrics are being recorded: {metrics_save_path}")
+        with open(metrics_save_path, 'w') as f:
+            json.dump(metrics_results, f, indent=4)
+
+
         return full_model_pipeline, metrics_results
 
 
-
+        
 
 
         

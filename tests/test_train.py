@@ -1,5 +1,6 @@
 import pytest
 import pandas as pd
+import json
 from pathlib import Path
 from src.train import ModelTrain
 from src.data_loader import DataLoad
@@ -42,9 +43,32 @@ def test_training_works(sample_raw_data, dummy_config, mock_logger):
     target_col_name = dummy_config["train_settings"]["target_col"]
     assert target_col_name in train_df.columns
     assert target_col_name in test_df.columns
+
+    model_file = Path(dummy_config["paths"]["model_path"])
+    metrics_file = Path(dummy_config["paths"]["metrics_path"])
+
+    assert model_file.exists(), "The model file (.joblib) could not be saved!"
+    assert metrics_file.exists(), "Could not save metric file (.json)!"
+
+    with open(metrics_file, "r") as f:
+        saved_metrics = json.load(f)
+        assert len(saved_metrics) > 0
     
 
 
+
+def test_raises_error_with_empty_dataframe(dummy_config, mock_logger):
+
+    target_col = dummy_config["train_settings"]["target_col"]
+    empty_df = pd.DataFrame(columns=[target_col, "some_other_col"])
+
+    file_path = dummy_config["paths"]["interim_path"]
+    empty_df.to_csv(file_path, index=False)
+
+    trainer = ModelTrain(config=dummy_config, logger=mock_logger)
+
+    with pytest.raises(ValueError, match="The dataset read is empty"):
+        trainer.run_training()
 
 
 
@@ -67,5 +91,5 @@ def test_raises_error_with_wrong_module_name(sample_raw_data, dummy_config, mock
     trainer = ModelTrain(config=broken_config, logger=mock_logger)
     
 
-    with pytest.raises(Exception):
+    with pytest.raises(ImportError):
         trainer.run_training()

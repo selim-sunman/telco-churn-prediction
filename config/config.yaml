@@ -3,6 +3,8 @@ paths:
   interim_path: "data/interim/interim_data.csv"
   train_path: "data/processed/train.csv"
   test_path: "data/processed/test.csv"
+  model_path: "models/model.joblib"       # <--- Modeller buraya
+  metrics_path: "reports/metrics.json"
 
 preprocessing:
   service_cols:
