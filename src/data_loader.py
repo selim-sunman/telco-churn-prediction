@@ -13,7 +13,7 @@ class AppConfig(BaseModel):
 
 
 
-class DataLoad:
+class DataLoader:
     def __init__(self, config: Dict, logger):
         self.logger = logger
 

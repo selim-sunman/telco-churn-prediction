@@ -2,12 +2,12 @@ import pandas as pd
 import importlib
 import joblib
 import json
-from src.preprocess import Preprocessing_Pipeline
+from src.preprocess import PreprocessingPipeline
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from src.evaluation import ModelEvaluation
 from pydantic import BaseModel
-from typing import Any
+from typing import Any, Tuple
 from pathlib import Path
 
 
@@ -52,7 +52,7 @@ class AppConfig(BaseModel):
 
 
 
-class ModelTrain:
+class ModelTrainer:
     def __init__(self, config: dict, logger):
         self.logger = logger
 
@@ -80,7 +80,7 @@ class ModelTrain:
 
 
 
-    def run_training(self):
+    def run_training(self) -> Tuple[Pipeline, dict[str, float]]:
 
         self.setup_output_dirs()
         
@@ -113,7 +113,7 @@ class ModelTrain:
 
 
         self.logger.info("Preprocessing steps are being created...")
-        preprocessing_pipeline = Preprocessing_Pipeline(logger=self.logger)
+        preprocessing_pipeline = PreprocessingPipeline(logger=self.logger)
 
 
         preprocessing_steps = preprocessing_pipeline.create_pipeline(

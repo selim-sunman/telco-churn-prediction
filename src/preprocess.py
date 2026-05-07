@@ -5,7 +5,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 
-class Feature_Engineering(BaseEstimator, TransformerMixin):
+class FeatureEngineering(BaseEstimator, TransformerMixin):
     def __init__(self, logger, service_cols):
         self.logger = logger
         self.service_cols = service_cols
@@ -67,7 +67,7 @@ class Feature_Engineering(BaseEstimator, TransformerMixin):
 
 
 
-class Preprocessing_Pipeline:
+class PreprocessingPipeline:
     def __init__(self, logger):
         self.logger = logger
 
@@ -94,7 +94,7 @@ class Preprocessing_Pipeline:
 
 
         full_pipeline = Pipeline(steps=[
-            ("feature_engineering", Feature_Engineering(logger=self.logger, service_cols=service_cols)),
+            ("feature_engineering", FeatureEngineering(logger=self.logger, service_cols=service_cols)),
             ("data_preprocessing", preprocessor)
         ])
 

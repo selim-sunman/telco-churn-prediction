@@ -6,7 +6,7 @@ from typing import Any, List, Dict, Optional
 
 
 
-class ModelEvaluation:
+class ModelEvaluator:
     def __init__(self, metrics_config: List[Any], logger):
         
         self.metrics_config = metrics_config
@@ -57,7 +57,7 @@ class ModelEvaluation:
                 self.logger.error(f"An unexpected error occurred while calculating {metric_name}: {e}")
 
         self._log_metrics(results)
-        return[results]
+        return [results]
 
 
 

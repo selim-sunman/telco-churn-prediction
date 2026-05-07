@@ -56,7 +56,7 @@ def dummy_config(tmp_path):
 
 
 
-    ayarlar = {
+    settings = {
         "paths": {
             "raw_path": str(raw_data_path),
             "interim_path": str(interim_data_path),
@@ -88,7 +88,7 @@ def dummy_config(tmp_path):
         ]
     }
     
-    return ayarlar
+    return settings
 
 
 

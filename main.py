@@ -1,7 +1,7 @@
 from pathlib import Path
 from src.logger import setup_logger
 from src.utils import load_config
-from src.data_loader import DataLoad
+from src.data_loader import DataLoader
 from src.train import ModelTrain
 
 
@@ -19,7 +19,7 @@ def main():
 
     config = load_config(config_path)
 
-    data = DataLoad(config, logger)
+    data = DataLoader(config, logger)
 
     data.load_csv()
 
