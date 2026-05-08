@@ -13,7 +13,7 @@ class ModelEvaluator:
         self.logger = logger
 
     
-    def evaluate_model(self, y_test: pd.Series, y_pred: pd.Series, y_prob: Optional[pd.Series] = None) -> Dict[str, float]:
+    def evaluate_model(self, y_test: pd.Series, y_pred: pd.Series, y_prob: Optional[pd.Series] = None) -> Dict[str, Any]:
         
         self.logger.info("The model evaluation process is being initiated...")
         results = {}
@@ -29,6 +29,8 @@ class ModelEvaluator:
 
                 proba_metrics = ["roc_auc_score", "log_loss", "brier_score_loss", "average_precision_score"]
 
+
+            
 
                 if metric_name in proba_metrics:
                     if y_prob is not None:
@@ -48,8 +50,20 @@ class ModelEvaluator:
 
                         score = metric_func(y_test, y_pred)
 
+                    if metric_name == "classification_report":
+                        
+                        score = metric_func(y_test, y_pred, output_dict=True)
+                        results[metric_name] = score
 
-                    results[metric_name] = score
+                    elif metric_name == "confusion_matrix":
+
+                        results[metric_name] = score.tolist() if hasattr(score, 'tolist') else score
+                    else:
+                        try:
+                            results[metric_name] = float(score) if score is not None else None
+                        except (TypeError, ValueError):
+                            results[metric_name] = score
+
 
             except (ImportError, AttributeError) as e:
                 self.logger.error(f"Metric library or function not found ({module_name}.{metric_name}): {e}")
@@ -57,7 +71,7 @@ class ModelEvaluator:
                 self.logger.error(f"An unexpected error occurred while calculating {metric_name}: {e}")
 
         self._log_metrics(results)
-        return [results]
+        return results
 
 
 

@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from pathlib import Path
-from src.data_loader import DataLoad
+from src.data_loader import DataLoader
 
 
 def test_data_loader(sample_raw_data, dummy_config, mock_logger):
@@ -10,7 +10,7 @@ def test_data_loader(sample_raw_data, dummy_config, mock_logger):
     sample_raw_data.to_csv(file_path, index=False)
 
 
-    data_load = DataLoad(config=dummy_config, logger=mock_logger)
+    data_load = DataLoader(config=dummy_config, logger=mock_logger)
     clean_data = data_load.load_csv()
 
 
@@ -29,7 +29,7 @@ def test_missing_data_clean(sample_raw_data, dummy_config, mock_logger):
     file_path = dummy_config["paths"]["raw_path"]
     sample_raw_data.to_csv(file_path, index=False)
 
-    data_load = DataLoad(config=dummy_config, logger=mock_logger)
+    data_load = DataLoader(config=dummy_config, logger=mock_logger)
     clean_data = data_load.load_csv()
 
     assert len(clean_data) == len(sample_raw_data) - 1
@@ -44,7 +44,7 @@ def test_file_error(sample_raw_data, dummy_config, mock_logger):
     if file_.exists():
         file_.unlink()
 
-    data_load = DataLoad(config=dummy_config, logger=mock_logger)
+    data_load = DataLoader(config=dummy_config, logger=mock_logger)
 
 
     with pytest.raises(FileNotFoundError):
@@ -64,7 +64,7 @@ def test_clean_data_file(sample_raw_data, dummy_config, mock_logger):
         interim_path.unlink()
 
 
-    data_load = DataLoad(config=dummy_config, logger=mock_logger)
+    data_load = DataLoader(config=dummy_config, logger=mock_logger)
     clean_data = data_load.load_csv()
 
 

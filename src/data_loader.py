@@ -1,20 +1,11 @@
 import pandas as pd
 from pathlib import Path
-from pydantic import BaseModel
-from typing import Dict
-
-
-class DataConfig(BaseModel):
-    raw_path: str
-    interim_path: str
-
-class AppConfig(BaseModel):
-    paths : DataConfig
+from src.schemas import AppConfig
 
 
 
 class DataLoader:
-    def __init__(self, config: Dict, logger):
+    def __init__(self, config: dict, logger):
         self.logger = logger
 
         try:
@@ -63,7 +54,7 @@ class DataLoader:
                 f"Missing values detected: {missing_cols.to_dict()}"
                 )
             df = df.dropna(subset=["TotalCharges"])
-            self.logger.info(f"Dropped rows with missing values: {len(missing_cols)} columns affected")
+            self.logger.info(f"The {len(missing_value)} row containing missing data has been deleted.")
         else:
             self.logger.info("No missing values found. Dataset is clean")
 

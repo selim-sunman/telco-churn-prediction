@@ -2,8 +2,8 @@ import pytest
 import pandas as pd
 import json
 from pathlib import Path
-from src.train import ModelTrain
-from src.data_loader import DataLoad
+from src.train import ModelTrainer
+from src.data_loader import DataLoader
 
 
 
@@ -13,10 +13,10 @@ def test_training_works(sample_raw_data, dummy_config, mock_logger):
     file_path = dummy_config["paths"]["raw_path"]
     sample_raw_data.to_csv(file_path, index=False)
     
-    data_loader_obj = DataLoad(config=dummy_config, logger=mock_logger)
+    data_loader_obj = DataLoader(config=dummy_config, logger=mock_logger)
     data_loader_obj.load_csv()
 
-    trainer = ModelTrain(config=dummy_config, logger=mock_logger)
+    trainer = ModelTrainer(config=dummy_config, logger=mock_logger)
     trained_pipeline, metric_results = trainer.run_training()
     
  
@@ -25,9 +25,9 @@ def test_training_works(sample_raw_data, dummy_config, mock_logger):
     assert isinstance(trained_pipeline, Pipeline)
     
 
-    assert isinstance(metric_results, list)
+    assert isinstance(metric_results, dict)
     assert len(metric_results) > 0 
-    assert "accuracy_score" in metric_results[0] 
+    assert "accuracy_score" in metric_results 
     
 
     train_file = Path(dummy_config["paths"]["train_path"])
@@ -65,7 +65,7 @@ def test_raises_error_with_empty_dataframe(dummy_config, mock_logger):
     file_path = dummy_config["paths"]["interim_path"]
     empty_df.to_csv(file_path, index=False)
 
-    trainer = ModelTrain(config=dummy_config, logger=mock_logger)
+    trainer = ModelTrainer(config=dummy_config, logger=mock_logger)
 
     with pytest.raises(ValueError, match="The dataset read is empty"):
         trainer.run_training()
@@ -81,14 +81,14 @@ def test_raises_error_with_wrong_module_name(sample_raw_data, dummy_config, mock
 
     file_path = dummy_config["paths"]["raw_path"]
     sample_raw_data.to_csv(file_path, index=False)
-    data_loader_obj = DataLoad(config=dummy_config, logger=mock_logger)
+    data_loader_obj = DataLoader(config=dummy_config, logger=mock_logger)
     data_loader_obj.load_csv()
     
 
     broken_config = dummy_config.copy()
     broken_config["model"]["module"] = "sklearn.no_such_module_exists_i_made_it_up"
     
-    trainer = ModelTrain(config=broken_config, logger=mock_logger)
+    trainer = ModelTrainer(config=broken_config, logger=mock_logger)
     
 
     with pytest.raises(ImportError):

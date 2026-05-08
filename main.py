@@ -2,7 +2,7 @@ from pathlib import Path
 from src.logger import setup_logger
 from src.utils import load_config
 from src.data_loader import DataLoader
-from src.train import ModelTrain
+from src.train import ModelTrainer
 
 
 
@@ -24,7 +24,7 @@ def main():
     data.load_csv()
 
 
-    train = ModelTrain(config=config, logger=logger)
+    train = ModelTrainer(config=config, logger=logger)
 
     train.run_training()
 

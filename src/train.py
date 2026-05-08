@@ -5,49 +5,12 @@ import json
 from src.preprocess import PreprocessingPipeline
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from src.evaluation import ModelEvaluation
-from pydantic import BaseModel
-from typing import Any, Tuple
+from src.evaluation import ModelEvaluator
+from src.schemas import AppConfig
+from typing import Any
 from pathlib import Path
 
 
-
-class DataConfig(BaseModel):
-    interim_path: str
-    train_path: str
-    test_path: str
-    model_path: str
-    metrics_path: str
-
-class TrainSettings(BaseModel):
-    target_col: str
-    test_size: float
-    random_state: int
-
-class PreprocessingConfig(BaseModel):
-    numerical_cols: list[str]
-    categorical_cols: list[str]
-    service_cols: list[str]
-
-
-class ModelConfig(BaseModel):
-    module: str
-    model_name: str
-    params: dict[str, Any]
-
-
-
-class MetricConfig(BaseModel):
-    module: str
-    name: str
-
-
-class AppConfig(BaseModel):
-    paths: DataConfig
-    train_settings: TrainSettings
-    preprocessing: PreprocessingConfig
-    model: ModelConfig
-    metrics: list[MetricConfig]
 
 
 
@@ -79,8 +42,17 @@ class ModelTrainer:
              self.logger.info(f"Directory ensured: {path.parent}")
 
 
+    def save_metrics(self, metrics: dict, path: Path):
+        try:
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(metrics, f, indent=4, ensure_ascii=False)
+                self.logger.info(f"Metrics were recorded successfully.: {path}")
+        except Exception as e:
+            self.logger.error(f"An error occurred while recording the metrics.: {e}")
+            raise
 
-    def run_training(self) -> Tuple[Pipeline, dict[str, float]]:
+
+    def run_training(self) -> tuple[Pipeline, dict[str, Any]]:
 
         self.setup_output_dirs()
         
@@ -113,7 +85,7 @@ class ModelTrainer:
 
 
         self.logger.info("Preprocessing steps are being created...")
-        preprocessing_pipeline = PreprocessingPipeline(logger=self.logger)
+        preprocessing_pipeline = PreprocessingPipeline()
 
 
         preprocessing_steps = preprocessing_pipeline.create_pipeline(
@@ -163,11 +135,11 @@ class ModelTrainer:
         self.logger.info("The Evaluation module is being called for model evaluation...")
 
 
-        evaluator = ModelEvaluation(metrics_config=self.config.metrics, logger=self.logger)
+        evaluator = ModelEvaluator(metrics_config=self.config.metrics, logger=self.logger)
 
         metrics_results = evaluator.evaluate_model(y_test=y_test, y_pred=y_pred, y_prob=y_prob)
 
-
+        
         self.logger.info("Data is saved as train-test....")
 
 
@@ -181,6 +153,13 @@ class ModelTrainer:
         test_data.to_csv(test_file, index=False)
 
 
+        
+        metrics_save_path = Path(self.config.paths.metrics_path)
+        self.logger.info(f"Metrics are being recorded: {metrics_save_path}")
+        self.save_metrics(metrics=metrics_results, path=metrics_save_path)
+        
+
+
         model_save_path = Path(self.config.paths.model_path)
 
         try:
@@ -189,13 +168,7 @@ class ModelTrainer:
         except OSError as e:
             self.logger.error(f"Disk error! Model could not be saved: {e}")
             raise
-
-
-        metrics_save_path = Path(self.config.paths.metrics_path)
-        self.logger.info(f"Metrics are being recorded: {metrics_save_path}")
-        with open(metrics_save_path, 'w') as f:
-            json.dump(metrics_results, f, indent=4)
-
+        
 
         return full_model_pipeline, metrics_results
 
