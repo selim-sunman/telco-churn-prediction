@@ -5,9 +5,7 @@ from typing import Any
 
 class DataConfig(BaseModel):
     raw_path: str
-    interim_path: str
-    train_path: str
-    test_path: str
+    processed_path: str
     model_path: str
     metrics_path: str
 

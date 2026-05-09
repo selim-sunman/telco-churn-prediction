@@ -57,20 +57,20 @@ def test_clean_data_file(sample_raw_data, dummy_config, mock_logger):
     file_path = dummy_config["paths"]["raw_path"]
     sample_raw_data.to_csv(file_path, index=False)
 
-    interim_path = Path(dummy_config["paths"]["interim_path"])
+    processed_path = Path(dummy_config["paths"]["processed_path"])
 
 
-    if interim_path.exists():
-        interim_path.unlink()
+    if processed_path.exists():
+        processed_path.unlink()
 
 
     data_load = DataLoader(config=dummy_config, logger=mock_logger)
     clean_data = data_load.load_csv()
 
 
-    assert interim_path.exists()
+    assert processed_path.exists()
 
-    save_data = pd.read_csv(interim_path)
+    save_data = pd.read_csv(processed_path)
     assert len(clean_data) == len(sample_raw_data)
     assert "customerID" not in save_data.columns
 

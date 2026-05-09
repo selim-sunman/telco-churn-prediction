@@ -29,8 +29,6 @@ class ModelTrainer:
 
     def setup_output_dirs(self):
          output_paths = [
-             self.config.paths.train_path,
-             self.config.paths.test_path,
              self.config.paths.model_path,
              self.config.paths.metrics_path            
          ]
@@ -57,7 +55,7 @@ class ModelTrainer:
         self.setup_output_dirs()
         
 
-        data_path = Path(self.config.paths.interim_path)
+        data_path = Path(self.config.paths.processed_path)
         self.logger.info("Data is being loaded and separated into Train/Test sections...")
 
         try:
@@ -140,20 +138,8 @@ class ModelTrainer:
         metrics_results = evaluator.evaluate_model(y_test=y_test, y_pred=y_pred, y_prob=y_prob)
 
         
-        self.logger.info("Data is saved as train-test....")
 
 
-        train_file = Path(self.config.paths.train_path)
-        test_file = Path(self.config.paths.test_path)
-      
-        train_data = pd.concat([X_train, y_train], axis=1)
-        test_data = pd.concat([X_test, y_test], axis=1)
-
-        train_data.to_csv(train_file, index=False)
-        test_data.to_csv(test_file, index=False)
-
-
-        
         metrics_save_path = Path(self.config.paths.metrics_path)
         self.logger.info(f"Metrics are being recorded: {metrics_save_path}")
         self.save_metrics(metrics=metrics_results, path=metrics_save_path)

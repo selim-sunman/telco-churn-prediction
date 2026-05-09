@@ -65,12 +65,12 @@ class DataLoader:
 
 
         try:
-            output_path = Path(self.config.paths.interim_path)
+            output_path = Path(self.config.paths.processed_path)
             output_path.parent.mkdir(parents=True, exist_ok=True)
             df.to_csv(output_path, index=False)
-            self.logger.info(f"Cleaned data saved to {self.config.paths.interim_path} : {df.duplicated().sum()}")
+            self.logger.info(f"Cleaned data saved to {self.config.paths.processed_path} : {df.duplicated().sum()}")
         except OSError as e:
-            self.logger.error(f"Failed to save cleaned data to {self.config.paths.interim_path}. Check disk space or permissions: {e}")
+            self.logger.error(f"Failed to save cleaned data to {self.config.paths.processed_path}. Check disk space or permissions: {e}")
             raise
 
 

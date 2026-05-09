@@ -48,9 +48,7 @@ def sample_raw_data():
 @pytest.fixture
 def dummy_config(tmp_path):
     raw_data_path = tmp_path / "raw_data.csv"
-    interim_data_path = tmp_path / "interim_data.csv"
-    train_path = tmp_path / "train.csv"
-    test_path = tmp_path / "test.csv"
+    processed_data_path = tmp_path / "processed_data.csv"
     model_path = tmp_path / "model.joblib"
     metrics_path = tmp_path / "metrics.json"
 
@@ -59,9 +57,7 @@ def dummy_config(tmp_path):
     settings = {
         "paths": {
             "raw_path": str(raw_data_path),
-            "interim_path": str(interim_data_path),
-            "train_path": str(train_path),
-            "test_path": str(test_path),
+            "processed_path": str(processed_data_path),
             "model_path": str(model_path),
             "metrics_path": str(metrics_path)
         },

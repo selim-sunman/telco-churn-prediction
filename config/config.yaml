@@ -1,9 +1,7 @@
 paths:
   raw_path: "data/raw/dataset.csv"
-  interim_path: "data/interim/interim_data.csv"
-  train_path: "data/processed/train.csv"
-  test_path: "data/processed/test.csv"
-  model_path: "models/model.joblib"       # <--- Modeller buraya
+  processed_path: "data/processed/processed_data.csv"
+  model_path: "models/model.joblib"
   metrics_path: "reports/metrics.json"
 
 preprocessing:

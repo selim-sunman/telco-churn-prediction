@@ -30,19 +30,6 @@ def test_training_works(sample_raw_data, dummy_config, mock_logger):
     assert "accuracy_score" in metric_results 
     
 
-    train_file = Path(dummy_config["paths"]["train_path"])
-    test_file = Path(dummy_config["paths"]["test_path"])
-    
-    assert train_file.exists(), "Train verisi bilgisayara kaydedilemedi!"
-    assert test_file.exists(), "Test verisi bilgisayara kaydedilemedi!"
-    
-  
-    train_df = pd.read_csv(train_file)
-    test_df = pd.read_csv(test_file)
-    
-    target_col_name = dummy_config["train_settings"]["target_col"]
-    assert target_col_name in train_df.columns
-    assert target_col_name in test_df.columns
 
     model_file = Path(dummy_config["paths"]["model_path"])
     metrics_file = Path(dummy_config["paths"]["metrics_path"])
@@ -62,7 +49,7 @@ def test_raises_error_with_empty_dataframe(dummy_config, mock_logger):
     target_col = dummy_config["train_settings"]["target_col"]
     empty_df = pd.DataFrame(columns=[target_col, "some_other_col"])
 
-    file_path = dummy_config["paths"]["interim_path"]
+    file_path = dummy_config["paths"]["processed_path"]
     empty_df.to_csv(file_path, index=False)
 
     trainer = ModelTrainer(config=dummy_config, logger=mock_logger)

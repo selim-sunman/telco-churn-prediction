@@ -5,7 +5,7 @@ from src.preprocess import FeatureEngineering, PreprocessingPipeline
 
 
 
-def test_feature_engineering(sample_raw_data, dummy_config, mock_logger):
+def test_feature_engineering(sample_raw_data, dummy_config):
     
     df = sample_raw_data.copy()
 
@@ -14,7 +14,7 @@ def test_feature_engineering(sample_raw_data, dummy_config, mock_logger):
 
     service_cols = dummy_config["preprocessing"]["service_cols"]
 
-    transformer = FeatureEngineering(logger=mock_logger, service_cols=service_cols)
+    transformer = FeatureEngineering(service_cols=service_cols)
     new_df = transformer.transform(df)
 
     assert "HasFamily" in new_df.columns
@@ -25,9 +25,9 @@ def test_feature_engineering(sample_raw_data, dummy_config, mock_logger):
     assert "TotalCharges_log" in new_df.columns
 
 
-def test_pipeline(sample_raw_data, dummy_config, mock_logger):
+def test_pipeline(dummy_config, mock_logger):
 
-    pipeline_creator = PreprocessingPipeline(logger=mock_logger)
+    pipeline_creator = PreprocessingPipeline()
 
     numerical_cols = dummy_config["preprocessing"]["numerical_cols"]
     categorical_cols = dummy_config["preprocessing"]["categorical_cols"]
