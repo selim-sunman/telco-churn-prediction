@@ -1,3 +1,15 @@
+"""
+preprocess.py - Feature engineering and preprocessing pipeline.
+
+This module creates new features from the raw data and prepares
+the dataset for model training. It scales numbers and encodes
+categories so that scikit-learn models can work with them.
+
+There are two classes here:
+- FeatureEngineering: adds three new columns to the dataset.
+- PreprocessingPipeline: builds the full sklearn pipeline.
+"""
+
 import numpy as np
 from loguru import logger
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -7,15 +19,49 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 
 class FeatureEngineering(BaseEstimator, TransformerMixin):
+    """Creates new features from existing columns in the dataset.
+
+    This is a custom sklearn transformer — it works inside a Pipeline
+    just like StandardScaler or OneHotEncoder. It adds three new
+    columns that help the model make better predictions.
+
+    Attributes:
+        service_cols (list[str]): Columns that describe which services
+            the customer uses (e.g. OnlineSecurity, StreamingTV).
+    """
+
     def __init__(self, service_cols):
         self.service_cols = service_cols
 
-
     def fit(self, X, y=None):
+        """Required by sklearn — this transformer doesn't learn anything.
+
+        Args:
+            X: Input data (not used).
+            y: Target column (not used).
+
+        Returns:
+            FeatureEngineering: Returns itself so sklearn can chain steps.
+        """
         return self
     
-    
     def transform(self, X):
+        """Adds three new columns to the dataset.
+
+        New columns created:
+            - HasFamily: 1 if the customer has a partner or dependents, else 0.
+              Customers with families tend to churn less.
+            - TotalService: How many add-on services the customer uses (0-8).
+              More services usually means a more engaged customer.
+            - TotalCharges_log: A log-scaled version of TotalCharges.
+              This reduces the effect of very large billing values on the model.
+
+        Args:
+            X (pd.DataFrame): The input dataset.
+
+        Returns:
+            pd.DataFrame: A copy of X with the three new columns added.
+        """
         
 
         logger.info("The feature engineering (transform) process has begun.")
@@ -36,6 +82,7 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
             available_cols = [col for col in self.service_cols if col in X_copy.columns]
                 
             if available_cols:
+                # "No internet service" and "No phone service" both mean "No" — simplify them
                 X_copy[available_cols] = X_copy[available_cols].replace({
                     "No internet service" : "No",
                     "No phone service" : "No"
@@ -46,7 +93,6 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
                 logger.debug("A new feature has been created: 'TotalService'")
             else:
                 logger.warning("Attention: Service columns not found! 'TotalService' was not calculated.")
-
 
 
                 
@@ -68,14 +114,35 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
         return X_copy
 
 
-
 class PreprocessingPipeline:
+    """Builds the full preprocessing pipeline used before model training.
+
+    Combines FeatureEngineering, StandardScaler, and OneHotEncoder
+    into a single sklearn Pipeline object. This way, all the same
+    transformations applied during training are automatically applied
+    when making predictions.
+    """
+
     def __init__(self):
-        self
-
-
+        pass
 
     def create_pipeline(self, numerical_cols, categorical_cols, service_cols):
+        """Builds and returns the preprocessing pipeline.
+
+        The pipeline has two main steps:
+            1. feature_engineering — adds HasFamily, TotalService, TotalCharges_log.
+            2. data_preprocessing — scales numbers and encodes categories:
+               - StandardScaler: scales numerical columns to a similar range.
+               - OneHotEncoder: converts text categories into 0/1 columns.
+
+        Args:
+            numerical_cols (list[str]): Columns with numeric values to scale.
+            categorical_cols (list[str]): Columns with text values to encode.
+            service_cols (list[str]): Service columns used to create TotalService.
+
+        Returns:
+            sklearn.pipeline.Pipeline: The complete pipeline, ready to be fitted.
+        """
         
         logger.info("Preprocessing pipeline setup is starting...")
 

@@ -1,3 +1,11 @@
+"""
+logger.py - Sets up how we print messages in our project.
+
+We use a library called 'loguru' instead of regular print().
+It prints nice colored messages to the screen and also saves
+all messages to a file so we can look at them later if something goes wrong.
+"""
+
 from loguru import logger
 from pathlib import Path
 import sys
@@ -5,6 +13,17 @@ import sys
 
 
 def setup_logger():
+    """Sets up the logger and returns it.
+
+    It creates a folder called 'logs' if it doesn't exist.
+    Then it tells loguru to do two things:
+    1. Print important messages (INFO) to the screen with colors.
+    2. Save all messages (DEBUG and up) to a file. It creates a new file
+       when the current one gets too big.
+
+    Returns:
+        The ready-to-use logger.
+    """
 
     log_dir = Path("logs")
 
@@ -42,5 +61,3 @@ if __name__ == "__main__":
     log.debug("This is a debug message (it only appears in the file).")
     log.warning("Attention! An alert has been generated.")
     log.error("Error: Database connection failed.")
-
-

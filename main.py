@@ -5,9 +5,6 @@ from src.data_loader import DataLoader
 from src.train import ModelTrainer
 
 
-
-
-
 def main():
     
     base_dir = Path(__file__).resolve().parent

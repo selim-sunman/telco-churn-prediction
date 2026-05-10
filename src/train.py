@@ -1,3 +1,18 @@
+"""
+train.py - Trains the machine learning model.
+
+This module handles the entire training process:
+- Loads the cleaned dataset
+- Splits it into training and test sets
+- Builds the preprocessing + model pipeline
+- Trains the model
+- Evaluates performance on the test set
+- Saves the model and metrics to disk
+
+The model and its settings are read from config.yaml,
+so you can change the algorithm without touching this file.
+"""
+
 import pandas as pd
 import importlib
 import joblib
@@ -11,11 +26,21 @@ from typing import Any
 from pathlib import Path
 
 
-
-
-
-
 class ModelTrainer:
+    """Manages the full model training workflow.
+
+    Reads the processed dataset, builds a pipeline that combines
+    preprocessing and the classifier, trains it, evaluates it,
+    and saves the results to disk.
+
+    The model is loaded dynamically from config.yaml — you can switch
+    between LogisticRegression, RandomForest, etc. with just a YAML edit.
+
+    Attributes:
+        config (AppConfig): Project settings loaded from config.yaml.
+        logger: Logger used to print progress and error messages.
+    """
+
     def __init__(self, config: dict, logger):
         self.logger = logger
 
@@ -26,21 +51,29 @@ class ModelTrainer:
             self.logger.error(f"Configuration validation error: {e}")
             raise
 
-
     def setup_output_dirs(self):
-         output_paths = [
+        """Creates the folders where the model and metrics will be saved.
+
+        If the folders already exist, nothing happens (safe to call every run).
+        """
+        output_paths = [
              self.config.paths.model_path,
              self.config.paths.metrics_path            
          ]
 
-         for path_str in output_paths:
+        for path_str in output_paths:
              path = Path(path_str)
 
              path.parent.mkdir(parents=True, exist_ok=True)
              self.logger.info(f"Directory ensured: {path.parent}")
 
-
     def save_metrics(self, metrics: dict, path: Path):
+        """Saves the evaluation results to a JSON file.
+
+        Args:
+            metrics (dict): A dictionary of metric names and their values.
+            path (Path): Where to save the JSON file.
+        """
         try:
             with open(path, 'w', encoding='utf-8') as f:
                 json.dump(metrics, f, indent=4, ensure_ascii=False)
@@ -49,9 +82,24 @@ class ModelTrainer:
             self.logger.error(f"An error occurred while recording the metrics.: {e}")
             raise
 
-
     def run_training(self) -> tuple[Pipeline, dict[str, Any]]:
+        """Runs the complete training process from start to finish.
 
+        What this method does:
+            1. Creates output folders if they don't exist.
+            2. Loads the cleaned CSV dataset.
+            3. Splits data into 80% training and 20% test sets.
+            4. Builds the preprocessing pipeline (scaling + encoding + features).
+            5. Loads the classifier defined in config.yaml.
+            6. Trains the full pipeline on the training set.
+            7. Makes predictions on the test set.
+            8. Calculates evaluation metrics (F1, AUC, etc.).
+            9. Saves metrics to a JSON file.
+            10. Saves the trained pipeline to disk with joblib.
+
+        Returns:
+            tuple: The trained pipeline and a dictionary of evaluation metrics.
+        """
         self.setup_output_dirs()
         
 
@@ -74,7 +122,7 @@ class ModelTrainer:
         y = df[target].map({"Yes": 1, "No": 0})
 
 
-
+        # stratify=y ensures both train and test have the same churn ratio
         X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                             test_size=self.config.train_settings.test_size,
                                                             random_state=self.config.train_settings.random_state,
@@ -97,6 +145,7 @@ class ModelTrainer:
         model_name = self.config.model.model_name
         params = self.config.model.params
 
+        # Load the model class from its module path (e.g. sklearn.ensemble.RandomForestClassifier)
         self.logger.info(f"Loading model: {module_name}.{model_name}")
         try:
             module = importlib.import_module(module_name)
@@ -124,6 +173,7 @@ class ModelTrainer:
 
         y_pred = full_model_pipeline.predict(X_test)
 
+        # Some metrics (like ROC-AUC) need probability scores, not just 0/1 predictions
         if hasattr(full_model_pipeline, "predict_proba"):
             y_prob = full_model_pipeline.predict_proba(X_test)[:, 1] 
         else:
@@ -136,7 +186,6 @@ class ModelTrainer:
         evaluator = ModelEvaluator(metrics_config=self.config.metrics, logger=self.logger)
 
         metrics_results = evaluator.evaluate_model(y_test=y_test, y_pred=y_pred, y_prob=y_prob)
-
         
 
 
@@ -157,19 +206,3 @@ class ModelTrainer:
         
 
         return full_model_pipeline, metrics_results
-
-
-        
-
-
-        
-
-
-
-
-
-
-
-
-
-
