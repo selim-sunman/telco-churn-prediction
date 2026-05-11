@@ -145,6 +145,12 @@ class ModelTrainer:
         model_name = self.config.model.model_name
         params = self.config.model.params
 
+
+        for k, v in params.items():
+            if v == "None":
+                params[k] = None
+
+        
         # Load the model class from its module path (e.g. sklearn.ensemble.RandomForestClassifier)
         self.logger.info(f"Loading model: {module_name}.{model_name}")
         try:
@@ -154,6 +160,9 @@ class ModelTrainer:
         except (ImportError, AttributeError) as e:
             self.logger.error(f"Model library or class not found: {e}")
             raise
+
+
+        
 
         full_model_pipeline = Pipeline(steps=[
             ("prep_steps", preprocessing_steps),
@@ -166,8 +175,10 @@ class ModelTrainer:
             full_model_pipeline.fit(X_train, y_train)
         except ValueError as e:
             self.logger.error(f"Data error during model training (X or y may be mismatched): {e}")
+            raise
         except Exception as e:
             self.logger.error(f"A technical problem occurred while training the model: {e}")
+            raise
 
 
 

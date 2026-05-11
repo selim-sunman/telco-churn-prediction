@@ -45,14 +45,12 @@ train_settings:
 
 
 model:
-  module: "sklearn.linear_model"
-  model_name: "LogisticRegression"
+  module: "xgboost"
+  model_name: "XGBClassifier"
   params:
-    C: 0.1
-    penalty: "l2"
-    class_weight: "balanced"
-    solver: "lbfgs"
-    max_iter: 1000
+    n_estimators: 100
+    max_depth: 5
+    learning_rate: 0.1
     random_state: 42
 
 
