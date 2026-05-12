@@ -96,7 +96,7 @@ class ModelVisualizer:
             plt.xlim([0.0, 1.0])
             plt.ylim([0.0, 1.05])
             plt.legend(loc="upper right")
-            plt.tight_layout
+            plt.tight_layout()
 
             save_path = self.save_dir / filename
             plt.savefig(save_path, bbox_inches="tight", dpi=300)
@@ -105,7 +105,7 @@ class ModelVisualizer:
         except Exception as e:
             self.logger.error(f"An error occurred while plotting the Precision-Recall curve and Average Precision score: {e}")
 
-    def plot_feature_importance(self, model, feature_names, top_n, filename):
+    def plot_feature_importance(self, model, feature_names, top_n, filename="feature_importance.png"):
         """Draws a bar chart showing the most important features.
 
         Only works if the model has a `feature_importances_` attribute
@@ -127,7 +127,7 @@ class ModelVisualizer:
             }).sort_values(by="Importance_Level", ascending=False).head(top_n)
 
             plt.figure(figsize=(10,6))
-            sns.barplot(x="Importance_Level", y="feature", data=df_importances, palette="viridis")
+            sns.barplot(x="Importance_Level", y="feature", data=df_importances, hue="feature", palette="viridis", legend=False)
             plt.title(f"Most Effective {top_n} Attribute", fontweight="bold")
             plt.xlabel("Importance_Level")
             plt.ylabel("Features")

@@ -3,6 +3,7 @@ paths:
   processed_path: "data/processed/processed_data.csv"
   model_path: "models/model.joblib"
   metrics_path: "reports/metrics.json"
+  visualizer_path: "reports/figures"
 
 preprocessing:
   service_cols:
@@ -15,6 +16,7 @@ preprocessing:
     - "StreamingTV"
     - "StreamingMovies"
   numerical_cols:
+    - "tenure"
     - "SeniorCitizen"
     - "MonthlyCharges"
     - "TotalCharges"
@@ -36,6 +38,7 @@ preprocessing:
     - "StreamingMovies"
     - "Contract"
     - "PaperlessBilling"
+    - "PaymentMethod"
 
 
 train_settings:

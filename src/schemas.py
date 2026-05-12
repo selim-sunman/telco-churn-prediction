@@ -23,6 +23,7 @@ class DataConfig(BaseModel):
     processed_path: str
     model_path: str
     metrics_path: str
+    visualizer_path: str
 
 
 class TrainSettings(BaseModel):

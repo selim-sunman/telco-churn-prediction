@@ -22,6 +22,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from src.evaluation import ModelEvaluator
 from src.schemas import AppConfig
+from src.visualizer import ModelVisualizer
 from typing import Any
 from pathlib import Path
 
@@ -184,11 +185,26 @@ class ModelTrainer:
 
         y_pred = full_model_pipeline.predict(X_test)
 
+
+
         # Some metrics (like ROC-AUC) need probability scores, not just 0/1 predictions
         if hasattr(full_model_pipeline, "predict_proba"):
-            y_prob = full_model_pipeline.predict_proba(X_test)[:, 1] 
+            y_prob = full_model_pipeline.predict_proba(X_test)[:, 1]
         else:
             y_prob = None
+
+        
+
+        raw_feature_names = full_model_pipeline.named_steps["prep_steps"].named_steps["data_preprocessing"].get_feature_names_out()
+        feature_names = [name.split("__")[-1] for name in raw_feature_names]
+
+        trained_model = full_model_pipeline.named_steps["model"]
+
+        visualizer = ModelVisualizer(self.logger, self.config.paths.visualizer_path)
+        visualizer.plot_confusion_matrix(y_test, y_pred)
+        visualizer.plot_feature_importance(trained_model, feature_names, 10)
+        visualizer.plot_precision_recall_curve(y_test, y_prob)
+
 
 
         self.logger.info("The Evaluation module is being called for model evaluation...")
