@@ -171,9 +171,40 @@ class ModelTrainer:
         ])
 
 
+        cv_module_name = self.config.hyperparameters.module
+        cv_model_name = self.config.hyperparameters.model_name
+        raw_param_grid = self.config.hyperparameters.params
+
+        for k, v_list in raw_param_grid.items():
+            if isinstance(v_list, list):
+                raw_param_grid[k] = [None if val == "None" else val for val in v_list]
+
+        param_grid = {f"model__{k}": v for k, v in raw_param_grid.items()}
+
+
         try:
-            self.logger.info("Pipeline training (Fit process)...")
-            full_model_pipeline.fit(X_train, y_train)
+            cv_module = importlib.import_module(cv_module_name)
+            cv_class = getattr(cv_module, cv_model_name)
+
+            self.logger.info(f"Initializing {cv_model_name}...")
+
+            search_model = cv_class(
+                estimator=full_model_pipeline,
+                param_grid=param_grid,
+                cv=5,
+                n_jobs=1,
+                verbose=1  # To speed up the training process, you can set the value to -1 to use all CPU cores
+            )
+
+            self.logger.info("Pipeline training with {cv_model_name} (Fit process)...")
+            self.logger.info(f"Total parameter combinations to try: {sum([len(v) for v in param_grid.values()])}")
+
+
+            search_model.fit(X_train, y_train)
+
+            self.logger.info(f"Best parameters found: {search_model.best_params_}")
+
+            full_model_pipeline = search_model.best_estimator_
         except ValueError as e:
             self.logger.error(f"Data error during model training (X or y may be mismatched): {e}")
             raise
@@ -200,6 +231,7 @@ class ModelTrainer:
 
         trained_model = full_model_pipeline.named_steps["model"]
 
+
         visualizer = ModelVisualizer(self.logger, self.config.paths.visualizer_path)
         visualizer.plot_confusion_matrix(y_test, y_pred)
         visualizer.plot_feature_importance(trained_model, feature_names, 10)
@@ -213,8 +245,8 @@ class ModelTrainer:
         evaluator = ModelEvaluator(metrics_config=self.config.metrics, logger=self.logger)
 
         metrics_results = evaluator.evaluate_model(y_test=y_test, y_pred=y_pred, y_prob=y_prob)
-        
 
+        
 
         metrics_save_path = Path(self.config.paths.metrics_path)
         self.logger.info(f"Metrics are being recorded: {metrics_save_path}")

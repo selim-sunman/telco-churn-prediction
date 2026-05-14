@@ -65,6 +65,12 @@ class ModelConfig(BaseModel):
     params: dict[str, Any]
 
 
+class Hyperparameter(BaseModel):
+    module: str
+    model_name: str
+    params: dict[str, Any]
+
+
 class MetricConfig(BaseModel):
     """Holds the settings for a single evaluation metric.
 
@@ -93,4 +99,5 @@ class AppConfig(BaseModel):
     train_settings: TrainSettings
     preprocessing: PreprocessingConfig
     model: ModelConfig
+    hyperparameters: Hyperparameter
     metrics: list[MetricConfig]

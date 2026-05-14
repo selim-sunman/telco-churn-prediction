@@ -64,10 +64,10 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
         """
         
 
-        logger.info("The feature engineering (transform) process has begun.")
+        logger.debug("The feature engineering (transform) process has begun.")
 
         X_copy = X.copy()
-        logger.info(f"Data size before processing:{X_copy.shape}")
+        logger.debug(f"Data size before processing:{X_copy.shape}")
 
             
         try:
@@ -103,7 +103,7 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
                 logger.warning("Attention: Column 'TotalCharges' not found! Log conversion skipped.")
 
 
-            logger.info(f"Feature engineering completed. Post-processing data size: {X_copy.shape}")
+            logger.debug(f"Feature engineering completed. Post-processing data size: {X_copy.shape}")
 
         except Exception as e:
             logger.error(f"A critical error during the feature engineering phase: {str(e)}")
