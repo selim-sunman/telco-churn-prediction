@@ -1,10 +1,39 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from contextlib import asynccontextmanager
 from src.utils import load_config
 from src.logger import setup_logger
 from pathlib import Path
 import joblib
 import pandas as pd
+
+
+logger = setup_logger()
+
+app_state = {}
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+
+    base_dir = Path(__file__).resolve().parent.parent
+    config_path = base_dir / "config" / "config.yaml"
+
+
+    try:
+        config = load_config(config_path)
+        model_path = config["paths"]["model_path"]
+
+        app_state["pipeline"] = joblib.load(model_path)
+        logger.info(f"Model loaded successfully: {model_path}")
+    except Exception as e:
+        logger.error(f"A critical error occurred while loading the model: {e}")
+        raise
+
+    yield
+
+    app_state.clear()
+    logger.info("API Closed: Model pipeline in memory cleared.")
+
 
 
 app = FastAPI(
@@ -16,25 +45,27 @@ app = FastAPI(
 
 
 class CustomerData(BaseModel):
-    gender: str
-    SeniorCitizen: int
-    Partner: str
-    Dependents: str
-    tenure: int
-    Phoneservice: str
-    MultipleLines: str     
-    InternetService: str  
-    OnlineSecurity: str     
-    OnlineBackup: str       
-    DeviceProtection: str   
-    TechSupport: str         
-    StreamingTV: str        
-    StreamingMovies: str    
-    Contract: str           
-    PaperlessBilling: str  
-    PaymentMethod: str      
-    MonthlyCharges: float     
-    TotalCharges: float
+    tenure: int = Field(..., ge=0, description="Number of months the customer stayed with the company")
+    SeniorCitizen: int = Field(..., ge=0, description="Is the customer elderly? (1: Yes, 0: No)")
+    MonthlyCharges: float = Field(..., ge=0.0, description="Monthly salary")  
+    TotalCharges: float = Field(..., ge=0.0, description="Total amount paid")
+
+
+    gender: str = Field(..., description="gender (Male, Female)")
+    Partner: str = Field(..., description="Does he/she have a partner? (Yes, No)")
+    Dependents: str = Field(..., description="Does he/she have someone he/she is responsible for supporting? (Yes, No)")
+    PhoneService: str = Field(..., description="Phone service (Yes, No)")
+    MultipleLines: str = Field(..., description="Multiple lines (Yes, No, No phone service))")    
+    InternetService: str = Field(..., description="Internet service (DSL, Fiber optic, No))")
+    OnlineSecurity: str = Field(..., description="Online security (Yes, No, No internet service)")    
+    OnlineBackup: str = Field(..., description="Online backup (Yes, No, No internet service)")      
+    DeviceProtection: str = Field(..., description="Device protection (Yes, No, No internet service)")   
+    TechSupport: str = Field(..., description="Technical support (Yes, No, No internet service)")        
+    StreamingTV: str = Field(..., description="TV Broadcast (Yes, No, No internet service)")       
+    StreamingMovies: str = Field(..., description="Movie Streaming (Yes, No, No internet service)")   
+    Contract: str = Field(..., description="Contract type (Month-to-month, One year, Two year)")          
+    PaperlessBilling: str = Field(..., description="Paperless invoice (Yes, No)") 
+    PaymentMethod: str = Field(..., description="Payment method")
 
 
     class Config:
@@ -63,41 +94,17 @@ class CustomerData(BaseModel):
         }
 
 
-
-model_path = None
-model_pipeline = None
-
-logger = setup_logger()
-
-@app.on_event("startup")
-def load_model():
-
-    global model_path
-    global model_pipeline
-
-    base_dir = Path(__file__).resolve().parent.parent
-    config_path = base_dir / "config" / "config.yaml"
-
-    config = load_config(config_path)
-
-
-    try:
-        model_path = config["paths"]["model_path"]
-
-        model_pipeline = joblib.load(model_path)
-        logger.info(f"Model loaded successfully: {model_path}")
-    except Exception as e:
-        logger.error(f"A critical error occurred while loading the model: {e}")
-
-
 @app.get("/", tags=["Health"])
 def root():
-    return {"status": "ok", "message": "The Telco Churn API Is Up and Running!"}
+    return {"status": "healthy", "message": "Telco Churn Prediction API is active and working!"}
 
 
 @app.post("/predict", tags=["prediction"])
 def predict_churn(customer: CustomerData):
-    if model_pipeline is None:
+
+    pipeline = app_state.get["pipeline"]
+
+    if pipeline is None:
         raise HTTPException(status_code=500, detail="The model has not been uploaded yet or could not be found.")
     
     try:
@@ -106,11 +113,11 @@ def predict_churn(customer: CustomerData):
 
         logger.info(f"Data retrieved for estimation: {customer.tenure} months, ${customer.MonthlyCharges} monthly charge.")
 
-        prediction_val = model_pipeline.predict(input_df)
+        prediction_val = pipeline.predict(input_df)[0]
 
         probability_val = 0.0
-        if hasattr(model_pipeline, "predict_proba"):
-            probability_val = model_pipeline.predict_proba(input_df)[0][1]
+        if hasattr(pipeline, "predict_proba"):
+            probability_val = pipeline.predict_proba(input_df)[0][1]
 
         result_label = "Yes" if prediction_val == 1 else "No"
 
