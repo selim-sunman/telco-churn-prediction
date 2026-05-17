@@ -20,9 +20,6 @@ preprocessing:
     - "SeniorCitizen"
     - "MonthlyCharges"
     - "TotalCharges"
-    - "HasFamily"
-    - "TotalService"
-    - "TotalCharges_log"
   categorical_cols:
     - "gender"
     - "Partner"

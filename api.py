@@ -15,7 +15,7 @@ app_state = {}
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
-    base_dir = Path(__file__).resolve().parent.parent
+    base_dir = Path(__file__).resolve().parent
     config_path = base_dir / "config" / "config.yaml"
 
 
@@ -39,7 +39,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title = "Telco Churn Prediction API",
     description = "An ML API that predicts the likelihood of customers churning.",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 
@@ -102,14 +103,14 @@ def root():
 @app.post("/predict", tags=["prediction"])
 def predict_churn(customer: CustomerData):
 
-    pipeline = app_state.get["pipeline"]
+    pipeline = app_state.get("pipeline")
 
     if pipeline is None:
         raise HTTPException(status_code=500, detail="The model has not been uploaded yet or could not be found.")
     
     try:
 
-        input_df = pd.DataFrame([customer.model_dump()])
+        input_df = pd.DataFrame([customer.dict()])
 
         logger.info(f"Data retrieved for estimation: {customer.tenure} months, ${customer.MonthlyCharges} monthly charge.")
 

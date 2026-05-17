@@ -90,7 +90,7 @@ def save_metrics_to_csv(metrics: Dict[str, float], filepath: str, model_name: st
         df.to_csv(filepath, mode="a", header=not file_exists, index=False, encoding='utf-8')
 
         if logger:
-            logger.info("Experiment results were successfully added to the CSV: {filepath}")
+            logger.info(f"Experiment results were successfully added to the CSV: {filepath}")
     except Exception as e:
         if logger:
             logger.error(f"An error occurred while attaching metrics to the CSV file: {e}")

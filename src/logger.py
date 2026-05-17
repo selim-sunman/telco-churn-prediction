@@ -54,9 +54,9 @@ def setup_logger():
 
     return logger
 
-log = setup_logger()
 
 if __name__ == "__main__":
+    log = setup_logger()
     log.info("The application has been launched.")
     log.debug("This is a debug message (it only appears in the file).")
     log.warning("Attention! An alert has been generated.")

@@ -26,6 +26,7 @@ class DataLoader:
             self.config = AppConfig(**config)
         except Exception as e:
             self.logger.error(f"Configuration validation error: {e}")
+            raise
 
     def load_csv(self) -> pd.DataFrame:
         """Loads and cleans the raw dataset, then returns it as a DataFrame.
